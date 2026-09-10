@@ -1,0 +1,5 @@
+data/walmart.db
+models/*.pkl
+__pycache__/
+*.pyc
+.streamlit/
