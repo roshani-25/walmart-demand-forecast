@@ -170,11 +170,17 @@ st.sidebar.write(f"WMAE: {wmae_val:,.2f}")
 st.sidebar.write(f"RMSE: {rmse_val:,.2f}")
 st.sidebar.write(f"MAE: {mae_val:,.2f}")
 
+@st.cache_resource
+def compute_shap_plot(_rf, _feature_cols, _test_all):
+    X_sample = _test_all[_feature_cols].sample(min(300, len(_test_all)), random_state=42)
+    explainer = shap.TreeExplainer(_rf)
+    shap_values = explainer.shap_values(X_sample)
+    fig = plt.figure()
+    shap.summary_plot(shap_values, X_sample, show=False)
+    plt.tight_layout()
+    return fig
+
 st.subheader("What Drives These Predictions? (SHAP Summary)")
 with st.spinner("Computing SHAP values..."):
-    X_sample = test_all[feature_cols].sample(min(300, len(test_all)), random_state=42)
-    explainer = shap.TreeExplainer(rf)
-    shap_values = explainer.shap_values(X_sample)
-    fig, ax = plt.subplots()
-    shap.summary_plot(shap_values, X_sample, show=False)
-    st.pyplot(fig)
+    shap_fig = compute_shap_plot(rf, feature_cols, test_all)
+    st.pyplot(shap_fig)
